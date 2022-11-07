@@ -4,9 +4,6 @@ const express = require("express");
 const socketio = require("socket.io");
 const formatMessage = require("./utils/messages");
 const { userJoin, getCurrentUser, userLeave, getRoomUsers } = require("./utils/users");
-const PORT = 5000;
-
-
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server);
@@ -18,6 +15,10 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", ({ username, room }) => {
     const user = userJoin(socket.id, username, room);
     socket.join(user.room);
+
+    // Welcome current user
+    socket.emit("message", formatMessage("Chat Bot", `Welcome to join the app ${user.username}!`));
+
     // Broadcast when a user connects
     socket.broadcast.to(user.room).emit("message",formatMessage("Chat Bot", `${user.username} has joined the chat`));
 
@@ -47,5 +48,5 @@ io.on("connection", (socket) => {
   });
 });
 
-
+const PORT = 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
